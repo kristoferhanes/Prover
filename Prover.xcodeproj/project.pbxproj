@@ -13,6 +13,12 @@
 		5EB42A161BF887DC00BCA277 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5EB42A151BF887DC00BCA277 /* Assets.xcassets */; };
 		5EB42A191BF887DC00BCA277 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5EB42A171BF887DC00BCA277 /* LaunchScreen.storyboard */; };
 		5EB42A241BF887DC00BCA277 /* ProverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB42A231BF887DC00BCA277 /* ProverTests.swift */; };
+		5EB42A311BF8881C00BCA277 /* ParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB42A301BF8881C00BCA277 /* ParserTests.swift */; };
+		5EBA15DB1C67FB0500F21CD7 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15D71C67FB0500F21CD7 /* Parser.swift */; };
+		5EBA15DC1C67FB0500F21CD7 /* Prop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15D81C67FB0500F21CD7 /* Prop.swift */; };
+		5EBA15DD1C67FB0500F21CD7 /* TruthTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15D91C67FB0500F21CD7 /* TruthTree.swift */; };
+		5EBA15DE1C67FB0500F21CD7 /* Argument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15DA1C67FB0500F21CD7 /* Argument.swift */; };
+		5EBA15E01C67FB8D00F21CD7 /* TruthTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15DF1C67FB8D00F21CD7 /* TruthTreeTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +42,12 @@
 		5EB42A1F1BF887DC00BCA277 /* ProverTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProverTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5EB42A231BF887DC00BCA277 /* ProverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProverTests.swift; sourceTree = "<group>"; };
 		5EB42A251BF887DC00BCA277 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5EB42A301BF8881C00BCA277 /* ParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParserTests.swift; sourceTree = "<group>"; };
+		5EBA15D71C67FB0500F21CD7 /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
+		5EBA15D81C67FB0500F21CD7 /* Prop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prop.swift; sourceTree = "<group>"; };
+		5EBA15D91C67FB0500F21CD7 /* TruthTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TruthTree.swift; sourceTree = "<group>"; };
+		5EBA15DA1C67FB0500F21CD7 /* Argument.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Argument.swift; sourceTree = "<group>"; };
+		5EBA15DF1C67FB8D00F21CD7 /* TruthTreeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TruthTreeTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +91,10 @@
 			children = (
 				5EB42A0E1BF887DC00BCA277 /* AppDelegate.swift */,
 				5EB42A101BF887DC00BCA277 /* ViewController.swift */,
+				5EBA15D71C67FB0500F21CD7 /* Parser.swift */,
+				5EBA15D81C67FB0500F21CD7 /* Prop.swift */,
+				5EBA15D91C67FB0500F21CD7 /* TruthTree.swift */,
+				5EBA15DA1C67FB0500F21CD7 /* Argument.swift */,
 				5EB42A121BF887DC00BCA277 /* Main.storyboard */,
 				5EB42A151BF887DC00BCA277 /* Assets.xcassets */,
 				5EB42A171BF887DC00BCA277 /* LaunchScreen.storyboard */,
@@ -91,6 +107,8 @@
 			isa = PBXGroup;
 			children = (
 				5EB42A231BF887DC00BCA277 /* ProverTests.swift */,
+				5EB42A301BF8881C00BCA277 /* ParserTests.swift */,
+				5EBA15DF1C67FB8D00F21CD7 /* TruthTreeTests.swift */,
 				5EB42A251BF887DC00BCA277 /* Info.plist */,
 			);
 			path = ProverTests;
@@ -199,6 +217,10 @@
 			files = (
 				5EB42A111BF887DC00BCA277 /* ViewController.swift in Sources */,
 				5EB42A0F1BF887DC00BCA277 /* AppDelegate.swift in Sources */,
+				5EBA15DC1C67FB0500F21CD7 /* Prop.swift in Sources */,
+				5EBA15DB1C67FB0500F21CD7 /* Parser.swift in Sources */,
+				5EBA15DE1C67FB0500F21CD7 /* Argument.swift in Sources */,
+				5EBA15DD1C67FB0500F21CD7 /* TruthTree.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,7 +228,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5EB42A311BF8881C00BCA277 /* ParserTests.swift in Sources */,
 				5EB42A241BF887DC00BCA277 /* ProverTests.swift in Sources */,
+				5EBA15E01C67FB8D00F21CD7 /* TruthTreeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -388,6 +412,7 @@
 				5EB42A2A1BF887DC00BCA277 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		5EB42A2B1BF887DC00BCA277 /* Build configuration list for PBXNativeTarget "ProverTests" */ = {
 			isa = XCConfigurationList;
@@ -396,6 +421,7 @@
 				5EB42A2D1BF887DC00BCA277 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
