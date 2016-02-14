@@ -56,11 +56,7 @@ struct TruthTree {
     }
 
     self.props = trunkProps(props)
-    if let (left, right) = branchProps(self.props) {
-      children = .Some(TruthTree(left), TruthTree(right))
-    } else {
-      children = .None
-    }
+    self.children = branchProps(self.props).map { .Some(TruthTree($0), TruthTree($1)) } ?? .None
   }
 
   var isConsistent: Bool {
