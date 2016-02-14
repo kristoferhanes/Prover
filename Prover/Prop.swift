@@ -39,8 +39,8 @@ private extension String {
 }
 
 indirect enum Prop: Equatable {
-  case Neg(Prop)
   case Atom(Character)
+  case Neg(Prop)
   case Conj(Prop, Prop)
   case Disj(Prop, Prop)
   case Impl(Prop, Prop)

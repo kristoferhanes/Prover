@@ -8,10 +8,15 @@
 
 import Foundation
 
-final class TruthTree {
+struct TruthTree {
 
-  let props: [Prop]
-  let children: (left: TruthTree, right: TruthTree)?
+  var props: [Prop]
+  var children: Children
+
+  indirect enum Children {
+    case Some(TruthTree, TruthTree)
+    case None
+  }
 
   init(_ props: [Prop]) {
 
@@ -51,11 +56,11 @@ final class TruthTree {
     }
 
     self.props = trunkProps(props)
-    let children = branchProps(self.props)
-    self.children = children.map {
-      (TruthTree($0.left), TruthTree($0.right))
+    if let (left, right) = branchProps(self.props) {
+      children = .Some(TruthTree(left), TruthTree(right))
+    } else {
+      children = .None
     }
-
   }
 
   var isConsistent: Bool {
@@ -67,16 +72,13 @@ final class TruthTree {
       return true
     }
 
-    func helper(tree: TruthTree, _ props: Set<Prop>) -> Bool {
+    func isConsistent(tree: TruthTree, _ props: Set<Prop>) -> Bool {
       let props = props.union(tree.props)
-      let childrenAreConsistent = tree.children.map { l, r in
-        helper(l, props) || helper(r, props)
-      }
-      return childrenAreConsistent ?? areConsistent(props)
+      guard case let .Some(left, right) = tree.children else { return areConsistent(props) }
+      return isConsistent(left, props) || isConsistent(right, props)
     }
 
-    return helper(self, [])
-    
+    return isConsistent(self, [])
   }
   
 }
