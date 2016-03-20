@@ -43,7 +43,7 @@ class TruthTreeTests: XCTestCase {
     XCTAssertEqual(argument4.isValid, true)
     let argument5 = Argument(premises: ["Q", "¬Q"].flatMap(Prop.init), conclusion: Prop("P"))
     XCTAssertEqual(argument5.isValid, true)
-    let argument6 = Argument(premises: ["(A → B) ∧ (C → D)", "A ∨ C"].flatMap(Prop.init), conclusion: Prop(string: "B ∨ C")!)
+    let argument6 = Argument(premises: ["(A → B) ∧ (C → D)", "A ∨ C"].flatMap(Prop.init), conclusion: Prop(string: "B ∨ D")!)
     XCTAssertEqual(argument6.isValid, true)
   }
 
