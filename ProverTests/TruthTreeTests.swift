@@ -10,7 +10,7 @@ import XCTest
 @testable import Prover
 
 class TruthTreeTests: XCTestCase {
-    
+
   func testTruthTree() {
     let props1 = ["P → Q", "P", "¬Q"].flatMap(Prop.init)
     let tree1 = TruthTree(props1)

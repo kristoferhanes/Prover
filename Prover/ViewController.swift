@@ -48,5 +48,5 @@ class ViewController: UIViewController {
     let chars = textView.text.characters
     textView.text = String(chars.dropLast())
   }
-
+  
 }

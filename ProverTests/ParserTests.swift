@@ -333,7 +333,7 @@ class ParserTests: XCTestCase {
     XCTAssertEqual(Prop(string: "P ∧ ¬Q"), Prop("P") && ~Prop("Q"))
     XCTAssertEqual(Prop(string: "¬¬P ∧ Q"), Prop("P") && Prop("Q"))
   }
-
+  
 }
 
 
