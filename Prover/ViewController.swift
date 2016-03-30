@@ -22,9 +22,7 @@ class ViewController: UIViewController {
   }
 
   @IBAction func didPressEvalButton() {
-    let props = textView.text
-      .componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet())
-      .flatMap(Prop.init)
+    let props = textView.text.characters.split("\n").flatMap { Prop(string: String($0)) }
     guard !props.isEmpty else { return }
     let premises = [Prop](props.dropLast())
     let conclusion = props.last!
