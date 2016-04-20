@@ -12,13 +12,17 @@ class ViewController: UIViewController {
 
   @IBOutlet weak var textView: UITextView!
 
-  @IBAction func didTypeCharacter(sender: UIButton) {
-    guard let s = sender.currentTitle else { return }
-    appendToDisplay(s)
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    textView.inputView = UIView()
+    textView.inputAssistantItem.leadingBarButtonGroups = []
+    textView.inputAssistantItem.trailingBarButtonGroups = []
+    textView.becomeFirstResponder()
   }
 
-  private func appendToDisplay(str: String) {
-    textView.text = textView.text + str
+  @IBAction func didTypeCharacter(sender: UIButton) {
+    guard let s = sender.currentTitle else { return }
+    textView.insertText(s)
   }
 
   @IBAction func didPressEvalButton() {
@@ -39,12 +43,11 @@ class ViewController: UIViewController {
   }
 
   @IBAction func didPressReturnButton() {
-    appendToDisplay("\n")
+    textView.insertText("\n")
   }
 
   @IBAction func didPressBackspaceButton() {
-    let chars = textView.text.characters
-    textView.text = String(chars.dropLast())
+    textView.deleteBackward()
   }
   
 }
