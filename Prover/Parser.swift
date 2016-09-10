@@ -8,16 +8,8 @@
 
 import Foundation
 
-private extension String {
-  var first: Character? {
-    return characters.first
-  }
-
-  func dropFirst() -> String {
-    return String(characters.dropFirst())
-  }
-
-  var decompose: (Character, String)? {
+private extension String.CharacterView {
+  var decomposed: (head: Character, tail: String.CharacterView)? {
     return first.map { ($0, dropFirst()) }
   }
 }
@@ -128,9 +120,9 @@ func wordParser() -> Parser<String> {
     ?? Parser("")
 }
 
-func stringParser(string: String) -> Parser<String> {
-  guard let (x, xs) = string.decompose else { return Parser("") }
-  return product(characterParser(x), stringParser(xs))
+func stringParser(str: String) -> Parser<String> {
+  guard let (x, xs) = str.characters.decomposed else { return Parser("") }
+  return product(characterParser(x), stringParser(String(xs)))
     .flatMap { Parser("\($0)" + $1 ) }
 }
 
