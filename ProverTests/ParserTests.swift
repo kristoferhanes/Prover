@@ -244,25 +244,25 @@ class ParserTests: XCTestCase {
 
   func testChain1LParser2() {
     indirect enum Expr {
-      case Value(Int)
-      case Add(Expr, Expr)
-      case Subtract(Expr, Expr)
+      case value(Int)
+      case add(Expr, Expr)
+      case subtract(Expr, Expr)
 
       var evaluate: Int {
         switch self {
-        case let .Value(n): return n
-        case let .Add(expr1, expr2): return expr1.evaluate + expr2.evaluate
-        case let .Subtract(expr1, expr2): return expr1.evaluate - expr2.evaluate
+        case let .value(n): return n
+        case let .add(expr1, expr2): return expr1.evaluate + expr2.evaluate
+        case let .subtract(expr1, expr2): return expr1.evaluate - expr2.evaluate
         }
       }
     }
 
-    let add: (Expr,Expr)->Expr = { .Add($0, $1) }
-    let subtract: (Expr,Expr)->Expr = { .Subtract($0, $1) }
+    let add: (Expr,Expr)->Expr = { .add($0, $1) }
+    let subtract: (Expr,Expr)->Expr = { .subtract($0, $1) }
     let addOp = characterParser("+").map { _ in add }
       ?? characterParser("-").map { _ in subtract }
     func factor() -> Parser<Expr> {
-      return naturalNumberParser().map { .Value($0) } ?? bracketParser(
+      return naturalNumberParser().map { .value($0) } ?? bracketParser(
         open: characterParser("("),
         parser: expr(),
         close: characterParser(")"))

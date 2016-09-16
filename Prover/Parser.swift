@@ -15,9 +15,9 @@ private extension String.CharacterView {
 }
 
 struct Parser<Result> {
-  private let operation: String->(Result, String)?
+  fileprivate let operation: (String)->(Result, String)?
 
-  init(_ operation: String->(Result, String)?) {
+  init(_ operation: @escaping (String)->(Result, String)?) {
     self.operation = operation
   }
 
@@ -29,16 +29,16 @@ struct Parser<Result> {
     self.init { _ in nil }
   }
 
-  func parse(input: String) -> (result: Result, remaining: String)? {
+  func parse(_ input: String) -> (result: Result, remaining: String)? {
     return operation(input)
   }
 
-  func map<U>(transform: Result->U) -> Parser<U> {
+  func map<U>(_ transform: @escaping (Result)->U) -> Parser<U> {
     return Parser<U> { input in self.parse(input).map { v, rem in
       (transform(v), rem) } }
   }
 
-  func flatMap<U>(transform: Result->Parser<U>) -> Parser<U> {
+  func flatMap<U>(_ transform: @escaping (Result)->Parser<U>) -> Parser<U> {
     return Parser<U> { input in
       self.parse(input).flatMap { v, rem in transform(v).parse(rem) }
     }
@@ -46,30 +46,30 @@ struct Parser<Result> {
 
 }
 
-func product<A,B>(a: Parser<A>,
-  @autoclosure(escaping) _ b: ()->Parser<B>) -> Parser<(A,B)> {
+func product<A,B>(_ a: Parser<A>,
+  _ b: @autoclosure @escaping ()->Parser<B>) -> Parser<(A,B)> {
     return a.flatMap { a in b().map { b in (a, b) } }
 }
 
-func product<A,B,C>(a: Parser<A>,
-  @autoclosure(escaping) _ b: ()->Parser<B>,
-  @autoclosure(escaping) _ c: ()->Parser<C>) -> Parser<(A,B,C)> {
+func product<A,B,C>(_ a: Parser<A>,
+  _ b: @autoclosure @escaping ()->Parser<B>,
+  _ c: @autoclosure @escaping ()->Parser<C>) -> Parser<(A,B,C)> {
     return a.flatMap { a in b().flatMap { b in c().map { c in (a, b, c) } } }
 }
 
-func product<A,B,C,D>(a: Parser<A>,
-  @autoclosure(escaping) _ b: ()->Parser<B>,
-  @autoclosure(escaping) _ c: ()->Parser<C>,
-  @autoclosure(escaping) _ d: ()->Parser<D>) -> Parser<(A,B,C,D)> {
+func product<A,B,C,D>(_ a: Parser<A>,
+  _ b: @autoclosure @escaping ()->Parser<B>,
+  _ c: @autoclosure @escaping ()->Parser<C>,
+  _ d: @autoclosure @escaping ()->Parser<D>) -> Parser<(A,B,C,D)> {
     return a.flatMap { a in b().flatMap { b in c().flatMap { c in
       d().map { d in (a, b, c, d) } } } }
 }
 
-func product<A,B,C,D,E>(a: Parser<A>,
-  @autoclosure(escaping) _ b: ()->Parser<B>,
-  @autoclosure(escaping) _ c: ()->Parser<C>,
-  @autoclosure(escaping) _ d: ()->Parser<D>,
-  @autoclosure(escaping) _ e: ()->Parser<E>) -> Parser<(A,B,C,D,E)> {
+func product<A,B,C,D,E>(_ a: Parser<A>,
+  _ b: @autoclosure @escaping ()->Parser<B>,
+  _ c: @autoclosure @escaping ()->Parser<C>,
+  _ d: @autoclosure @escaping ()->Parser<D>,
+  _ e: @autoclosure @escaping ()->Parser<E>) -> Parser<(A,B,C,D,E)> {
     return a.flatMap { a in b().flatMap { b in c().flatMap { c in
       d().flatMap { d in e().map { e in (a, b, c, d, e) } } } } }
 }
@@ -81,13 +81,13 @@ func itemParser() -> Parser<Character> {
   }
 }
 
-func satisfyParser(predicate: Character->Bool) -> Parser<Character> {
+func satisfyParser(_ predicate: @escaping (Character)->Bool) -> Parser<Character> {
   return itemParser().flatMap { character in
     predicate(character) ? Parser(character) : Parser()
   }
 }
 
-func characterParser(character: Character) -> Parser<Character> {
+func characterParser(_ character: Character) -> Parser<Character> {
   return satisfyParser { ch in character == ch }
 }
 
@@ -103,7 +103,7 @@ func uppercaseCharacterParser() -> Parser<Character> {
   return satisfyParser { ch in "A" <= ch && ch <= "Z" }
 }
 
-func ?? <T>(lhs: Parser<T>, @autoclosure(escaping) rhs: ()->Parser<T>) -> Parser<T> {
+func ?? <T>(lhs: Parser<T>, rhs: @autoclosure @escaping ()->Parser<T>) -> Parser<T> {
   return Parser { input in lhs.parse(input) ?? rhs().parse(input) }
 }
 
@@ -120,18 +120,18 @@ func wordParser() -> Parser<String> {
     ?? Parser("")
 }
 
-func stringParser(str: String) -> Parser<String> {
+func stringParser(_ str: String) -> Parser<String> {
   guard let (x, xs) = str.characters.decomposed else { return Parser("") }
   return product(characterParser(x), stringParser(String(xs)))
     .flatMap { Parser("\($0)" + $1 ) }
 }
 
-func manyParser(parser: Parser<Character>) -> Parser<String> {
+func manyParser(_ parser: Parser<Character>) -> Parser<String> {
   return product(parser, manyParser(parser)).flatMap { Parser("\($0)" + $1) }
     ?? Parser("")
 }
 
-func manyParser<T>(parser: Parser<T>) -> Parser<[T]> {
+func manyParser<T>(_ parser: Parser<T>) -> Parser<[T]> {
   return product(parser, manyParser(parser)).flatMap { Parser([$0] + $1) }
     ?? Parser([])
 }
@@ -141,11 +141,11 @@ func identifierParser() -> Parser<String> {
     .flatMap { Parser("\($0)" + $1) }
 }
 
-func many1Parser(parser: Parser<Character>) -> Parser<String> {
+func many1Parser(_ parser: Parser<Character>) -> Parser<String> {
   return product(parser, manyParser(parser)).flatMap { Parser("\($0)" + $1) }
 }
 
-func many1Parser<T>(parser: Parser<T>) -> Parser<[T]> {
+func many1Parser<T>(_ parser: Parser<T>) -> Parser<[T]> {
   return product(parser, manyParser(parser)).flatMap { Parser([$0] + $1) }
 }
 
@@ -167,16 +167,16 @@ func integerParser() -> Parser<Int> {
     .flatMap { Parser(-$1) } ?? naturalNumberParser()
 }
 
-func separateBy1Parser<A,B>(parser: Parser<A>, separator: Parser<B>) -> Parser<[A]> {
+func separateBy1Parser<A,B>(_ parser: Parser<A>, separator: Parser<B>) -> Parser<[A]> {
   return product(parser, manyParser(product(separator, parser).map { _, y in y }))
     .map { x, xs in [x] + xs }
 }
 
-func separateByParser<A,B>(parser: Parser<A>, separator: Parser<B>) -> Parser<[A]> {
+func separateByParser<A,B>(_ parser: Parser<A>, separator: Parser<B>) -> Parser<[A]> {
   return separateBy1Parser(parser, separator: separator) ?? Parser([])
 }
 
-func bracketParser<A,B,C>(open open: Parser<A>, parser: Parser<B>,
+func bracketParser<A,B,C>(open: Parser<A>, parser: Parser<B>,
   close: Parser<C>) -> Parser<B> {
     return product(open, parser, close).map { _, x, _ in x }
 }
@@ -188,28 +188,28 @@ func integersParser() -> Parser<[Int]> {
     close: characterParser("]"))
 }
 
-func chainL1Parser<T>(parser: Parser<T>, operation: Parser<(T,T)->T>) -> Parser<T> {
+func chainL1Parser<T>(_ parser: Parser<T>, operation: Parser<(T,T)->T>) -> Parser<T> {
   return product(parser, manyParser(product(operation, parser).map { f, y in (f, y) }))
     .map { x, fys in fys.reduce(x) { accum, z in let (f, y) = z; return f(accum, y) }
   }
 }
 
-func chainR1Parser<T>(parser: Parser<T>, operation: Parser<(T,T)->T>) -> Parser<T> {
+func chainR1Parser<T>(_ parser: Parser<T>, operation: Parser<(T,T)->T>) -> Parser<T> {
   return parser.flatMap { x in product(operation,
     chainR1Parser(parser, operation: operation)).map { f, y in f(x, y) } }
 }
 
 private extension Array {
-  func reduce(combine: (Element, Element)->Element) -> Element {
-    return dropFirst().reduce(first!, combine: combine)
+  func reduce(_ combine: (Element, Element)->Element) -> Element {
+    return dropFirst().reduce(first!, combine)
   }
 
-  func reduceFromLast(combine: (Element, Element)->Element) -> Element {
-    return reverse().reduce { accum, x in combine(x, accum) }
+  func reduceFromLast(_ combine: (Element, Element)->Element) -> Element {
+    return reversed().reduce { accum, x in combine(x, accum) }
   }
 }
 
-func operatorsParser<A,B>(parsers: [(Parser<A>, B)]) -> Parser<B> {
+func operatorsParser<A,B>(_ parsers: [(Parser<A>, B)]) -> Parser<B> {
   return parsers.map { p, op in p.map { _ in op } }
     .reduceFromLast { x, accum in accum ?? x }
 }

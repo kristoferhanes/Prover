@@ -20,13 +20,13 @@ class ViewController: UIViewController {
     textView.becomeFirstResponder()
   }
 
-  @IBAction func didTypeCharacter(sender: UIButton) {
+  @IBAction func didTypeCharacter(_ sender: UIButton) {
     guard let s = sender.currentTitle else { return }
     textView.insertText(s)
   }
 
   @IBAction func didPressEvalButton() {
-    let props = textView.text.characters.split("\n").flatMap { Prop(string: String($0)) }
+    let props = textView.text.characters.split(separator: "\n").flatMap { Prop(string: String($0)) }
     guard !props.isEmpty else { return }
     let premises = [Prop](props.dropLast())
     let conclusion = props.last!
@@ -34,12 +34,12 @@ class ViewController: UIViewController {
     showAlert(isValid)
   }
 
-  private func showAlert(isValid: Bool) {
+  fileprivate func showAlert(_ isValid: Bool) {
     let title = isValid ? "Valid" : "Invalid"
     let message = isValid ? "The argument is valid." : "The argument is invalid."
-    let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-    alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
-    presentViewController(alert, animated: true, completion: nil)
+    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+    present(alert, animated: true, completion: nil)
   }
 
   @IBAction func didPressReturnButton() {
