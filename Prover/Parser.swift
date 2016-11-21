@@ -8,208 +8,135 @@
 
 import Foundation
 
-private extension String.CharacterView {
-  var decomposed: (head: Character, tail: String.CharacterView)? {
-    return first.map { ($0, dropFirst()) }
+struct Parser<Parsed> {
+  typealias Stream = String.CharacterView
+  fileprivate let parse: (Stream) -> (Parsed, Stream)?
+  
+  func parsing(_ input: String) -> (result: Parsed, remaining: String)? {
+    guard let (parsed, remaining) = parse(input.characters) else { return nil }
+    return (parsed, String(remaining))
   }
 }
 
-struct Parser<Result> {
-  fileprivate let operation: (String)->(Result, String)?
-
-  init(_ operation: @escaping (String)->(Result, String)?) {
-    self.operation = operation
+extension String {
+  func parsed<Parsed>(with parser: Parser<Parsed>) -> Parsed? {
+    guard let (parsed, remaining) = parser.parse(characters), remaining.isEmpty else { return nil }
+    return parsed
   }
+}
 
-  init(_ result: Result) {
-    self.init { input in (result, input) }
+extension Parser {
+  var many: Parser<[Parsed]> {
+    return Parser<[Parsed]> { [parse] stream in
+      var stream = stream
+      var result: [Parsed] = []
+      while let (parsed, remaining) = parse(stream) {
+        result.append(parsed)
+        stream = remaining
+      }
+      return (result, stream)
+    }
   }
+  
+  func chain(with operation: Parser<(Parsed, Parsed) -> Parsed>) -> Parser {
+    let pair = curried { ($0, $1) } <^> operation <*> self
+    let sequence = curried { f, y in (f, y) } <^> self <*> pair.many
+    return sequence.map { x, fys in
+      fys.reduce(x) { accum, z in
+        let (f, y) = z;
+        return f(accum, y)
+      }
+    }
+  }
+}
 
+extension Parser {
   init() {
     self.init { _ in nil }
   }
-
-  func parse(_ input: String) -> (result: Result, remaining: String)? {
-    return operation(input)
+  
+  init(_ value: Parsed) {
+    self.init { stream in (value, stream) }
   }
-
-  func map<U>(_ transform: @escaping (Result)->U) -> Parser<U> {
-    return Parser<U> { input in self.parse(input).map { v, rem in
-      (transform(v), rem) } }
-  }
-
-  func flatMap<U>(_ transform: @escaping (Result)->Parser<U>) -> Parser<U> {
-    return Parser<U> { input in
-      self.parse(input).flatMap { v, rem in transform(v).parse(rem) }
+  
+  func map<Mapped>(_ transform: @escaping (Parsed) -> Mapped) -> Parser<Mapped> {
+    return Parser<Mapped> { [parse] stream in
+      parse(stream).map { parsed, remaining in (transform(parsed), remaining) }
     }
   }
-
-}
-
-func product<A,B>(_ a: Parser<A>,
-  _ b: @autoclosure @escaping ()->Parser<B>) -> Parser<(A,B)> {
-    return a.flatMap { a in b().map { b in (a, b) } }
-}
-
-func product<A,B,C>(_ a: Parser<A>,
-  _ b: @autoclosure @escaping ()->Parser<B>,
-  _ c: @autoclosure @escaping ()->Parser<C>) -> Parser<(A,B,C)> {
-    return a.flatMap { a in b().flatMap { b in c().map { c in (a, b, c) } } }
-}
-
-func product<A,B,C,D>(_ a: Parser<A>,
-  _ b: @autoclosure @escaping ()->Parser<B>,
-  _ c: @autoclosure @escaping ()->Parser<C>,
-  _ d: @autoclosure @escaping ()->Parser<D>) -> Parser<(A,B,C,D)> {
-    return a.flatMap { a in b().flatMap { b in c().flatMap { c in
-      d().map { d in (a, b, c, d) } } } }
-}
-
-func product<A,B,C,D,E>(_ a: Parser<A>,
-  _ b: @autoclosure @escaping ()->Parser<B>,
-  _ c: @autoclosure @escaping ()->Parser<C>,
-  _ d: @autoclosure @escaping ()->Parser<D>,
-  _ e: @autoclosure @escaping ()->Parser<E>) -> Parser<(A,B,C,D,E)> {
-    return a.flatMap { a in b().flatMap { b in c().flatMap { c in
-      d().flatMap { d in e().map { e in (a, b, c, d, e) } } } } }
-}
-
-func itemParser() -> Parser<Character> {
-  return Parser<Character> { input in
-    let chars = input.characters
-    return chars.first.map { ($0, String(chars.dropFirst())) }
+  
+  func flatMap<Mapped>(_ transform: @escaping (Parsed) -> Mapped?) -> Parser<Mapped> {
+    return Parser<Mapped> { [parse] stream in
+      parse(stream).flatMap { parsed, remaining in
+        transform(parsed).map { ($0, remaining) }
+      }
+    }
+  }
+  
+  func flatMap<Mapped>(_ transform: @escaping (Parsed) -> Parser<Mapped>) -> Parser<Mapped> {
+    return Parser<Mapped> { [parse] stream in
+      parse(stream).flatMap { parsed, remaining in transform(parsed).parse(remaining) }
+    }
   }
 }
 
-func satisfyParser(_ predicate: @escaping (Character)->Bool) -> Parser<Character> {
-  return itemParser().flatMap { character in
-    predicate(character) ? Parser(character) : Parser()
+func <^> <Parsed, Mapped>(transform: @escaping (Parsed) -> Mapped, parser: Parser<Parsed>) -> Parser<Mapped> {
+  return parser.map(transform)
+}
+
+func <*> <Parsed, Mapped>(transform: Parser<(Parsed) -> Mapped>, parser: @autoclosure @escaping () -> Parser<Parsed>) -> Parser<Mapped> {
+  return Parser<Mapped> { stream in
+    guard let (transform, remaining0) = transform.parse(stream) else { return nil }
+    guard let (parsed, remaining1) = parser().parse(remaining0) else { return nil }
+    return (transform(parsed), remaining1)
   }
 }
 
-func characterParser(_ character: Character) -> Parser<Character> {
-  return satisfyParser { ch in character == ch }
+func ?? <Parsed>(lhs: Parser<Parsed>, rhs: @autoclosure @escaping () -> Parser<Parsed>) -> Parser<Parsed> {
+  return Parser { stream in lhs.parse(stream) ?? rhs().parse(stream) }
 }
 
-func digitParser() -> Parser<Character> {
-  return satisfyParser { ch in "0" <= ch && ch <= "9" }
-}
-
-func lowercaseCharacterParser() -> Parser<Character> {
-  return satisfyParser { ch in "a" <= ch && ch <= "z" }
-}
-
-func uppercaseCharacterParser() -> Parser<Character> {
-  return satisfyParser { ch in "A" <= ch && ch <= "Z" }
-}
-
-func ?? <T>(lhs: Parser<T>, rhs: @autoclosure @escaping ()->Parser<T>) -> Parser<T> {
-  return Parser { input in lhs.parse(input) ?? rhs().parse(input) }
-}
-
-func letterParser() -> Parser<Character> {
-  return lowercaseCharacterParser() ?? uppercaseCharacterParser()
-}
-
-func alphaNumericParser() -> Parser<Character> {
-  return letterParser() ?? digitParser()
-}
-
-func wordParser() -> Parser<String> {
-  return product(letterParser(), wordParser()).flatMap { Parser("\($0)" + $1) }
-    ?? Parser("")
-}
-
-func stringParser(_ str: String) -> Parser<String> {
-  guard let (x, xs) = str.characters.decomposed else { return Parser("") }
-  return product(characterParser(x), stringParser(String(xs)))
-    .flatMap { Parser("\($0)" + $1 ) }
-}
-
-func manyParser(_ parser: Parser<Character>) -> Parser<String> {
-  return product(parser, manyParser(parser)).flatMap { Parser("\($0)" + $1) }
-    ?? Parser("")
-}
-
-func manyParser<T>(_ parser: Parser<T>) -> Parser<[T]> {
-  return product(parser, manyParser(parser)).flatMap { Parser([$0] + $1) }
-    ?? Parser([])
-}
-
-func identifierParser() -> Parser<String> {
-  return product(lowercaseCharacterParser(), manyParser(alphaNumericParser()))
-    .flatMap { Parser("\($0)" + $1) }
-}
-
-func many1Parser(_ parser: Parser<Character>) -> Parser<String> {
-  return product(parser, manyParser(parser)).flatMap { Parser("\($0)" + $1) }
-}
-
-func many1Parser<T>(_ parser: Parser<T>) -> Parser<[T]> {
-  return product(parser, manyParser(parser)).flatMap { Parser([$0] + $1) }
-}
-
-private extension Character {
-  var unicodeValue: UInt32 {
-    return String(self).unicodeScalars.first!.value
+enum Parse {
+  
+  static let character = Parser<Character> { stream in stream.first.map { ($0, stream.dropFirst()) } }
+  
+  static func satisfying(_ predicate: @escaping (Character) -> Bool) -> Parser<Character> {
+    return character.flatMap { character in
+      predicate(character) ? Parser(character) : Parser()
+    }
+  }
+  
+  static func character(matching char: Character) -> Parser<Character> {
+    return satisfying { ch in char == ch }
+  }
+  
+  static let lowercase = satisfying { ch in "a" <= ch && ch <= "z" }
+  
+  static let uppercase = satisfying { ch in "A" <= ch && ch <= "Z" }
+  
+  static let letter = lowercase ?? uppercase
+  
+  static func string(matching match: String) -> Parser<String> {
+    return Parser { stream in
+      var stream = stream
+      let charParser = satisfying { _ in true }
+      var chars = match.characters
+      while let (head, tail) = chars.decomposed {
+        guard let (parsed, remaining) = charParser.parse(stream), head == parsed else { return nil }
+        chars = tail
+        stream = remaining
+      }
+      return (match, stream)
+    }
+  }
+  
+  static func bracket<Open, Parsed, Close>(open: Parser<Open>, parser: Parser<Parsed>, close: Parser<Close>) -> Parser<Parsed> {
+    return curried { _, parsed, _ in parsed } <^> open <*> parser <*> close
   }
 }
 
-func naturalNumberParser() -> Parser<Int> {
-  let op: (Int, Int)->Int = { m, n in 10*m + n }
-  return chainL1Parser(digitParser().flatMap { x in
-    Parser(Int(x.unicodeValue - Character("0").unicodeValue))
-    }, operation: Parser(op))
-}
-
-func integerParser() -> Parser<Int> {
-  return product(characterParser("-"), naturalNumberParser())
-    .flatMap { Parser(-$1) } ?? naturalNumberParser()
-}
-
-func separateBy1Parser<A,B>(_ parser: Parser<A>, separator: Parser<B>) -> Parser<[A]> {
-  return product(parser, manyParser(product(separator, parser).map { _, y in y }))
-    .map { x, xs in [x] + xs }
-}
-
-func separateByParser<A,B>(_ parser: Parser<A>, separator: Parser<B>) -> Parser<[A]> {
-  return separateBy1Parser(parser, separator: separator) ?? Parser([])
-}
-
-func bracketParser<A,B,C>(open: Parser<A>, parser: Parser<B>,
-  close: Parser<C>) -> Parser<B> {
-    return product(open, parser, close).map { _, x, _ in x }
-}
-
-func integersParser() -> Parser<[Int]> {
-  return bracketParser(
-    open: characterParser("["),
-    parser: separateBy1Parser(integerParser(), separator: characterParser(",")),
-    close: characterParser("]"))
-}
-
-func chainL1Parser<T>(_ parser: Parser<T>, operation: Parser<(T,T)->T>) -> Parser<T> {
-  return product(parser, manyParser(product(operation, parser).map { f, y in (f, y) }))
-    .map { x, fys in fys.reduce(x) { accum, z in let (f, y) = z; return f(accum, y) }
+private extension Collection where SubSequence == Self {
+  var decomposed: (Iterator.Element, SubSequence)? {
+    return first.map { ($0, dropFirst()) }
   }
-}
-
-func chainR1Parser<T>(_ parser: Parser<T>, operation: Parser<(T,T)->T>) -> Parser<T> {
-  return parser.flatMap { x in product(operation,
-    chainR1Parser(parser, operation: operation)).map { f, y in f(x, y) } }
-}
-
-private extension Array {
-  func reduce(_ combine: (Element, Element)->Element) -> Element {
-    return dropFirst().reduce(first!, combine)
-  }
-
-  func reduceFromLast(_ combine: (Element, Element)->Element) -> Element {
-    return reversed().reduce { accum, x in combine(x, accum) }
-  }
-}
-
-func operatorsParser<A,B>(_ parsers: [(Parser<A>, B)]) -> Parser<B> {
-  return parsers.map { p, op in p.map { _ in op } }
-    .reduceFromLast { x, accum in accum ?? x }
 }

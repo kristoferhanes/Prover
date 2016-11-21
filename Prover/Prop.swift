@@ -31,8 +31,8 @@ private extension String {
       }.map { Character($0) }
     return String(filtered)
   }
-
-  func dropOutsideParens() -> String {
+  
+  var withoutOutsideParens: String {
     guard characters.first == "(" && characters.last == ")" else { return self }
     return String(characters.dropFirst().dropLast())
   }
@@ -51,34 +51,44 @@ extension Prop {
   init(_ character: Character) {
     self = .atom(character.uppercase)
   }
-
+  
   init?(string: String) {
-    guard let (result, remaining) = Prop.parser.parse(string.withoutWhitespace)
-      , remaining == ""
-      else { return nil }
-    self = result
+    guard let parsed = string.withoutWhitespace.parsed(with: Prop.parser) else { return nil }
+    self = parsed
   }
-
-  fileprivate static var parser: Parser<Prop> {
-    let opsParser = stringParser(Const.ConjStr).map { _ in { $0 && $1 } }
-      ?? stringParser(Const.DisjStr).map { _ in { $0 || $1 } }
-      ?? stringParser(Const.ImplStr).map { _ in { $0 => $1 }  }
-      ?? stringParser(Const.EqivStr).map { _ in { $0 <=> $1 } }
-
-    func termParser() -> Parser<Prop> {
-      return product(stringParser(Const.NegStr), termParser()).map { ~$1 }
-        ?? letterParser().map { Prop($0) }
-        ?? bracketParser(
-          open: characterParser("("),
-          parser: propParser(),
-          close: characterParser(")"))
+  
+  private static var parser: Parser<Prop> {
+    let operations = Parse.string(matching: Const.ConjStr).map { _ in { $0 && $1 } }
+      ?? Parse.string(matching: Const.DisjStr).map { _ in { $0 || $1 } }
+      ?? Parse.string(matching: Const.ImplStr).map { _ in { $0 => $1 }  }
+      ?? Parse.string(matching: Const.EqivStr).map { _ in { $0 <=> $1 } }
+    
+    func term() -> Parser<Prop> {
+      
+      func negation() -> Parser<Prop> {
+        return curried { _, term in ~term } <^> Parse.string(matching: Const.NegStr) <*> term()
+      }
+      
+      func atom() ->  Parser<Prop> {
+        return Parse.letter.map { Prop($0) }
+      }
+      
+      func brackets() ->  Parser<Prop> {
+        return Parse.bracket(
+          open: Parse.character(matching: "("),
+          parser: prop(),
+          close: Parse.character(matching: ")")
+        )
+      }
+      
+      return negation() ?? atom() ?? brackets()
     }
-
-    func propParser() -> Parser<Prop> {
-      return chainL1Parser(termParser(), operation: opsParser)
+    
+    func prop() -> Parser<Prop> {
+      return term().chain(with: operations)
     }
-
-    return propParser()
+    
+    return prop()
   }
 }
 
@@ -94,7 +104,7 @@ extension Prop: CustomStringConvertible {
       case let .eqiv(l, r): return "(\(helper(l)) \(Const.EqivStr) \(helper(r)))"
       }
     }
-    return helper(self).dropOutsideParens()
+    return helper(self).withoutOutsideParens
   }
 }
 
