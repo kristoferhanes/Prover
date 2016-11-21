@@ -14,7 +14,7 @@
 		5EB42A191BF887DC00BCA277 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5EB42A171BF887DC00BCA277 /* LaunchScreen.storyboard */; };
 		5EB42A311BF8881C00BCA277 /* ParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB42A301BF8881C00BCA277 /* ParserTests.swift */; };
 		5EBA15DB1C67FB0500F21CD7 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15D71C67FB0500F21CD7 /* Parser.swift */; };
-		5EBA15DC1C67FB0500F21CD7 /* Prop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15D81C67FB0500F21CD7 /* Prop.swift */; };
+		5EBA15DC1C67FB0500F21CD7 /* Proposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15D81C67FB0500F21CD7 /* Proposition.swift */; };
 		5EBA15DD1C67FB0500F21CD7 /* TruthTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15D91C67FB0500F21CD7 /* TruthTree.swift */; };
 		5EBA15DE1C67FB0500F21CD7 /* Argument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15DA1C67FB0500F21CD7 /* Argument.swift */; };
 		5EBA15E01C67FB8D00F21CD7 /* TruthTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA15DF1C67FB8D00F21CD7 /* TruthTreeTests.swift */; };
@@ -44,7 +44,7 @@
 		5EB42A251BF887DC00BCA277 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5EB42A301BF8881C00BCA277 /* ParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParserTests.swift; sourceTree = "<group>"; };
 		5EBA15D71C67FB0500F21CD7 /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
-		5EBA15D81C67FB0500F21CD7 /* Prop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prop.swift; sourceTree = "<group>"; };
+		5EBA15D81C67FB0500F21CD7 /* Proposition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Proposition.swift; sourceTree = "<group>"; };
 		5EBA15D91C67FB0500F21CD7 /* TruthTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TruthTree.swift; sourceTree = "<group>"; };
 		5EBA15DA1C67FB0500F21CD7 /* Argument.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Argument.swift; sourceTree = "<group>"; };
 		5EBA15DF1C67FB8D00F21CD7 /* TruthTreeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TruthTreeTests.swift; sourceTree = "<group>"; };
@@ -96,7 +96,7 @@
 				5EDEA7E61DE268310038694C /* Curried.swift */,
 				5EDEA7E81DE2684E0038694C /* Applicative.swift */,
 				5EBA15D71C67FB0500F21CD7 /* Parser.swift */,
-				5EBA15D81C67FB0500F21CD7 /* Prop.swift */,
+				5EBA15D81C67FB0500F21CD7 /* Proposition.swift */,
 				5EBA15D91C67FB0500F21CD7 /* TruthTree.swift */,
 				5EBA15DA1C67FB0500F21CD7 /* Argument.swift */,
 				5EB42A121BF887DC00BCA277 /* Main.storyboard */,
@@ -224,7 +224,7 @@
 			files = (
 				5EB42A111BF887DC00BCA277 /* ViewController.swift in Sources */,
 				5EB42A0F1BF887DC00BCA277 /* AppDelegate.swift in Sources */,
-				5EBA15DC1C67FB0500F21CD7 /* Prop.swift in Sources */,
+				5EBA15DC1C67FB0500F21CD7 /* Proposition.swift in Sources */,
 				5EBA15DB1C67FB0500F21CD7 /* Parser.swift in Sources */,
 				5EBA15DE1C67FB0500F21CD7 /* Argument.swift in Sources */,
 				5EBA15DD1C67FB0500F21CD7 /* TruthTree.swift in Sources */,

@@ -36,15 +36,15 @@ class ParserTests: XCTestCase {
   }
 
   func testPropParserInit() {
-    XCTAssertEqual(Prop(string: "P ∧ Q"), Prop("P") && Prop("Q"))
-    XCTAssertEqual(Prop(string: "P ∨ Q"), Prop("P") || Prop("Q"))
-    XCTAssertEqual(Prop(string: "P ∧ (Q ∨ R) ∧ S"), Prop("P") && (Prop("Q") || Prop("R")) && Prop("S"))
-    XCTAssertEqual(Prop(string: "P → Q"), Prop("P") => Prop("Q"))
-    XCTAssertEqual(Prop(string: "P ⇔ Q"), Prop("P") <=> Prop("Q"))
-    XCTAssertEqual(Prop(string: "¬P ∧ Q"), ~Prop("P") && Prop("Q"))
-    XCTAssertEqual(Prop(string: "¬(P ∧ Q)"), ~(Prop("P") && Prop("Q")))
-    XCTAssertEqual(Prop(string: "P ∧ ¬Q"), Prop("P") && ~Prop("Q"))
-    XCTAssertEqual(Prop(string: "¬¬P ∧ Q"), Prop("P") && Prop("Q"))
+    XCTAssertEqual(Proposition(string: "P ∧ Q"), Proposition("P") && Proposition("Q"))
+    XCTAssertEqual(Proposition(string: "P ∨ Q"), Proposition("P") || Proposition("Q"))
+    XCTAssertEqual(Proposition(string: "P ∧ (Q ∨ R) ∧ S"), Proposition("P") && (Proposition("Q") || Proposition("R")) && Proposition("S"))
+    XCTAssertEqual(Proposition(string: "P → Q"), Proposition("P") => Proposition("Q"))
+    XCTAssertEqual(Proposition(string: "P ⇔ Q"), Proposition("P") <=> Proposition("Q"))
+    XCTAssertEqual(Proposition(string: "¬P ∧ Q"), ~Proposition("P") && Proposition("Q"))
+    XCTAssertEqual(Proposition(string: "¬(P ∧ Q)"), ~(Proposition("P") && Proposition("Q")))
+    XCTAssertEqual(Proposition(string: "P ∧ ¬Q"), Proposition("P") && ~Proposition("Q"))
+    XCTAssertEqual(Proposition(string: "¬¬P ∧ Q"), Proposition("P") && Proposition("Q"))
   }
   
 }

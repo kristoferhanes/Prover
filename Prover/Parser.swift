@@ -67,9 +67,7 @@ extension Parser {
   
   func flatMap<Mapped>(_ transform: @escaping (Parsed) -> Mapped?) -> Parser<Mapped> {
     return Parser<Mapped> { [parse] stream in
-      parse(stream).flatMap { parsed, remaining in
-        transform(parsed).map { ($0, remaining) }
-      }
+      parse(stream).flatMap { parsed, remaining in transform(parsed).map { ($0, remaining) } }
     }
   }
   
@@ -92,13 +90,13 @@ func <*> <Parsed, Mapped>(transform: Parser<(Parsed) -> Mapped>, parser: @autocl
   }
 }
 
-func ?? <Parsed>(lhs: Parser<Parsed>, rhs: @autoclosure @escaping () -> Parser<Parsed>) -> Parser<Parsed> {
-  return Parser { stream in lhs.parse(stream) ?? rhs().parse(stream) }
+func ?? <Parsed>(left: Parser<Parsed>, right: @autoclosure @escaping () -> Parser<Parsed>) -> Parser<Parsed> {
+  return Parser { stream in left.parse(stream) ?? right().parse(stream) }
 }
 
 enum Parse {
   
-  static let character = Parser<Character> { stream in stream.first.map { ($0, stream.dropFirst()) } }
+  static let character = Parser<Character> { $0.decomposed }
   
   static func satisfying(_ predicate: @escaping (Character) -> Bool) -> Parser<Character> {
     return character.flatMap { character in

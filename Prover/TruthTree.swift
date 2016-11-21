@@ -10,7 +10,7 @@ import Foundation
 
 struct TruthTree {
 
-  var props: [Prop]
+  var props: [Proposition]
   var children: Children
 
   indirect enum Children {
@@ -18,36 +18,36 @@ struct TruthTree {
     case none
   }
 
-  init(_ props: [Prop]) {
+  init(_ props: [Proposition]) {
 
-    func trunkRule(_ prop: Prop) -> [Prop] {
+    func trunkRule(_ prop: Proposition) -> [Proposition] {
       switch prop {
-      case let .conj(left, right): return [left, right]
-      case let .neg(.impl(ant, cons)): return [ant, ~cons]
-      case let .neg(.disj(left, right)): return [~left, ~right]
-      case let .neg(.neg(p)): return [p]
+      case let .conjunction(left, right): return [left, right]
+      case let .negation(.implication(ant, cons)): return [ant, ~cons]
+      case let .negation(.disjunction(left, right)): return [~left, ~right]
+      case let .negation(.negation(p)): return [p]
       default: return []
       }
     }
 
-    func branchRule(_ prop: Prop) -> ([Prop], [Prop])? {
+    func branchRule(_ prop: Proposition) -> ([Proposition], [Proposition])? {
       switch prop {
-      case let .impl(ant, cons): return ([~ant], [cons])
-      case let .disj(left, right): return ([left], [right])
-      case let .neg(.conj(left, right)): return ([~left], [~right])
-      case let .eqiv(left, right): return ([left, right], [~left, ~right])
-      case let .neg(.eqiv(left, right)): return ([~left, right], [left, ~right])
+      case let .implication(ant, cons): return ([~ant], [cons])
+      case let .disjunction(left, right): return ([left], [right])
+      case let .negation(.conjunction(left, right)): return ([~left], [~right])
+      case let .eqivalence(left, right): return ([left, right], [~left, ~right])
+      case let .negation(.eqivalence(left, right)): return ([~left, right], [left, ~right])
       default: return nil
       }
     }
 
-    func trunkProps(_ props: [Prop]) -> [Prop] {
+    func trunkProps(_ props: [Proposition]) -> [Proposition] {
       guard !props.isEmpty else { return [] }
       let newProps = props.flatMap(trunkRule)
       return props + trunkProps(newProps)
     }
 
-    func branchProps(_ props: [Prop]) -> (left: [Prop], right: [Prop])? {
+    func branchProps(_ props: [Proposition]) -> (left: [Proposition], right: [Proposition])? {
       let newProps = props.flatMap(branchRule)
       guard !newProps.isEmpty else { return nil }
       let left = newProps.flatMap { l, _ in l }
@@ -61,14 +61,14 @@ struct TruthTree {
 
   var isConsistent: Bool {
 
-    func areConsistent(_ props: Set<Prop>) -> Bool {
+    func areConsistent(_ props: Set<Proposition>) -> Bool {
       for p in props {
         if props.contains(~p) { return false }
       }
       return true
     }
 
-    func isConsistent(_ tree: TruthTree, _ props: Set<Prop>) -> Bool {
+    func isConsistent(_ tree: TruthTree, _ props: Set<Proposition>) -> Bool {
       let props = props.union(tree.props)
       guard case let .some(left, right) = tree.children else { return areConsistent(props) }
       return isConsistent(left, props) || isConsistent(right, props)

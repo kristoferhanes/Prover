@@ -9,8 +9,8 @@
 import Foundation
 
 struct Argument {
-  var premises: [Prop]
-  var conclusion: Prop
+  var premises: [Proposition]
+  var conclusion: Proposition
 
   var isValid: Bool {
     let tree = TruthTree(premises + [~conclusion])

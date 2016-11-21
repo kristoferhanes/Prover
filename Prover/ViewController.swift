@@ -26,9 +26,9 @@ class ViewController: UIViewController {
   }
 
   @IBAction func didPressEvalButton() {
-    let props = textView.text.characters.split(separator: "\n").flatMap { Prop(string: String($0)) }
+    let props = textView.text.characters.split(separator: "\n").flatMap { Proposition(string: String($0)) }
     guard !props.isEmpty else { return }
-    let premises = [Prop](props.dropLast())
+    let premises = [Proposition](props.dropLast())
     let conclusion = props.last!
     let isValid = Argument(premises: premises, conclusion: conclusion).isValid
     showAlert(isValid)
