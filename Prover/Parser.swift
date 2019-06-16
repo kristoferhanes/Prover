@@ -9,18 +9,18 @@
 import Foundation
 
 struct Parser<Parsed> {
-  typealias Stream = String.CharacterView
+  typealias Stream = Substring
   fileprivate let parse: (Stream) -> (Parsed, Stream)?
   
   func parsing(_ input: String) -> (result: Parsed, remaining: String)? {
-    guard let (parsed, remaining) = parse(input.characters) else { return nil }
+    guard let (parsed, remaining) = parse(Substring(input)) else { return nil }
     return (parsed, String(remaining))
   }
 }
 
 extension String {
   func parsed<Parsed>(with parser: Parser<Parsed>) -> Parsed? {
-    guard let (parsed, remaining) = parser.parse(characters), remaining.isEmpty else { return nil }
+    guard let (parsed, remaining) = parser.parse(Substring(self)), remaining.isEmpty else { return nil }
     return parsed
   }
 }
@@ -118,7 +118,7 @@ enum Parse {
     return Parser { stream in
       var stream = stream
       let charParser = satisfying { _ in true }
-      var chars = match.characters
+      var chars = Substring(match)
       while let (head, tail) = chars.decomposed {
         guard let (parsed, remaining) = charParser.parse(stream), head == parsed else { return nil }
         chars = tail

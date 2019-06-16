@@ -48,7 +48,7 @@ struct TruthTree {
     }
 
     func branchProps(_ props: [Proposition]) -> (left: [Proposition], right: [Proposition])? {
-      let newProps = props.flatMap(branchRule)
+      let newProps = props.compactMap(branchRule)
       guard !newProps.isEmpty else { return nil }
       let left = newProps.flatMap { l, _ in l }
       let right = newProps.flatMap { _, r in r }

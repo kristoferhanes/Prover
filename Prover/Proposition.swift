@@ -19,7 +19,7 @@ private struct Const {
 
 private extension Character {
   var uppercase: Character {
-    return String(self).uppercased().characters.first!
+    return String(self).uppercased().first!
   }
 }
 
@@ -33,12 +33,12 @@ private extension String {
   }
   
   var withoutOutsideParens: String {
-    guard characters.first == "(" && characters.last == ")" else { return self }
-    return String(characters.dropFirst().dropLast())
+    guard first == "(" && last == ")" else { return self }
+    return String(dropFirst().dropLast())
   }
 }
 
-indirect enum Proposition: Equatable {
+indirect enum Proposition: Hashable {
   case atom(Character)
   case negation(Proposition)
   case conjunction(Proposition, Proposition)
@@ -108,19 +108,6 @@ extension Proposition: CustomStringConvertible {
   }
 }
 
-extension Proposition: Hashable {
-  var hashValue: Int {
-    switch self {
-    case let .negation(p): return 761 &* 1 &+ p.hashValue
-    case let .atom(c): return 761 &* 2 &+ c.hashValue
-    case let .conjunction(l, r): return 761 &* 3 &+ 37 &* l.hashValue &+ r.hashValue
-    case let .disjunction(l, r): return 761 &* 4 &+ 37 &* l.hashValue &+ r.hashValue
-    case let .implication(l, r): return 761 &* 5 &+ 37 &* l.hashValue &+ r.hashValue
-    case let .eqivalence(l, r): return 761 &* 6 &+ 37 &* l.hashValue &+ r.hashValue
-    }
-  }
-}
-
 func && (lhs: Proposition, rhs: Proposition) -> Proposition {
   return .conjunction(lhs, rhs)
 }
@@ -144,16 +131,4 @@ func <=> (lhs: Proposition, rhs: Proposition) -> Proposition {
 prefix func ~ (prop: Proposition) -> Proposition {
   guard case let .negation(p) = prop else { return .negation(prop) }
   return p
-}
-
-func == (lhs: Proposition, rhs: Proposition) -> Bool {
-  switch (lhs, rhs) {
-  case let (.negation(l), .negation(r)): return l == r
-  case let (.atom(l), .atom(r)): return l == r
-  case let (.conjunction(l1,l2), .conjunction(r1,r2)): return l1 == r1 && l2 == r2
-  case let (.disjunction(l1,l2), .disjunction(r1,r2)): return l1 == r1 && l2 == r2
-  case let (.implication(l1,l2), .implication(r1,r2)): return l1 == r1 && l2 == r2
-  case let (.eqivalence(l1,l2), .eqivalence(r1,r2)): return l1 == r1 && l2 == r2
-  default: return false
-  }
 }
